@@ -1,5 +1,5 @@
 ---
-name: ce-plan-original
+name: ce:plan-original
 description: "Original ce-plan skill preserved before commit-level planning enhancement. Produces high-level implementation plans without commit-level breakdown or RED/GREEN structure. Use when you want the classic ce-plan behavior: research pipeline, implementation units with test scenarios, deepening, and document review — but without commit-level specs. Prefer ce-plan for new work."
 argument-hint: "[optional: feature description, requirements doc path, plan path to deepen, or improvement idea]"
 ---
