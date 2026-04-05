@@ -1,5 +1,5 @@
 ---
-name: ce:compound
+name: ce-compound
 description: Document a recently solved problem to compound your team's knowledge
 ---
 

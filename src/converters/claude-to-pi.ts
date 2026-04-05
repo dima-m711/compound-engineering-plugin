@@ -93,6 +93,23 @@ function convertAgent(agent: ClaudeAgent, usedNames: Set<string>): PiGeneratedSk
 export function transformContentForPi(body: string): string {
   let result = body
 
+  // Normalize frontmatter name field if present
+  const frontmatterMatch = result.match(/^---\n([\s\S]*?)\n---/)
+  if (frontmatterMatch) {
+    const frontmatter = frontmatterMatch[1]
+    const nameMatch = frontmatter.match(/^name:\s*(.+)$/m)
+    if (nameMatch) {
+      const originalName = nameMatch[1].trim()
+      const normalizedName = normalizeName(originalName)
+      if (originalName !== normalizedName) {
+        result = result.replace(
+          new RegExp(`^name:\\s*${escapeRegex(originalName)}$`, 'm'),
+          `name: ${normalizedName}`
+        )
+      }
+    }
+  }
+
   // Task repo-research-analyst(feature_description) or Task compound-engineering:research:repo-research-analyst(args)
   // -> Run subagent with agent="repo-research-analyst" and task="feature_description"
   const taskPattern = /^(\s*-?\s*)Task\s+([a-z][a-z0-9:-]*)\(([^)]*)\)/gm
@@ -131,6 +148,10 @@ export function transformContentForPi(body: string): string {
   })
 
   return result
+}
+
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
 function appendCompatibilityNoteIfNeeded(body: string): string {
