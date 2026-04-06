@@ -1,7 +1,7 @@
 ---
 title: "refactor: Modularize Pi extensions into focused, independently installable packages"
 type: refactor
-status: active
+status: completed
 date: 2026-04-06
 ---
 
@@ -146,7 +146,7 @@ A: Keep CE-prefixed for now. If other plugins want it, we can extract to `@pi/ui
 
 ## Implementation Units
 
-- [ ] **Unit 1: Extract UI extension**
+- [x] **Unit 1: Extract UI extension**
 
 **Goal:** Create `compound-engineering-ui.ts` with `ask_user_question` tool
 
@@ -182,7 +182,7 @@ A: Keep CE-prefixed for now. If other plugins want it, we can extract to `@pi/ui
 
 ---
 
-- [ ] **Unit 2: Extract Subagent extension**
+- [x] **Unit 2: Extract Subagent extension**
 
 **Goal:** Create `compound-engineering-subagent.ts` with `subagent` tool and all execution modes
 
@@ -229,7 +229,7 @@ A: Keep CE-prefixed for now. If other plugins want it, we can extract to `@pi/ui
 
 ---
 
-- [ ] **Unit 3: Extract MCPorter extension**
+- [x] **Unit 3: Extract MCPorter extension**
 
 **Goal:** Create `compound-engineering-mcporter.ts` with both `mcporter_list` and `mcporter_call` tools, including config resolution
 
@@ -271,7 +271,7 @@ A: Keep CE-prefixed for now. If other plugins want it, we can extract to `@pi/ui
 
 ---
 
-- [ ] **Unit 4: Create meta-compatibility extension**
+- [x] **Unit 4: Create meta-compatibility extension**
 
 **Goal:** Create `compound-engineering-compat.ts` that re-exports all three extensions for backward compatibility
 
@@ -324,7 +324,7 @@ export default function (pi: ExtensionAPI) {
 
 ---
 
-- [ ] **Unit 5: Update CLI to support selective extension generation**
+- [x] **Unit 5: Update CLI to support selective extension generation**
 
 **Goal:** Add `--extensions <list>` flag to CLI for selective extension generation and installation
 
@@ -364,7 +364,7 @@ export default function (pi: ExtensionAPI) {
 
 ---
 
-- [ ] **Unit 6: Update documentation**
+- [x] **Unit 6: Update documentation**
 
 **Goal:** Document the new modular extension system in README and CLI help text
 
