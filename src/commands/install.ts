@@ -78,6 +78,10 @@ export default defineCommand({
       default: true,
       description: "Infer agent temperature from name/description",
     },
+    extensions: {
+      type: "string",
+      description: "Pi extensions to include (comma-separated: ui,subagent,mcporter,compat). Default: compat",
+    },
     branch: {
       type: "string",
       description: "Git branch to clone from (e.g. feat/new-agents)",
@@ -103,10 +107,24 @@ export default defineCommand({
       const openclawHome = resolveTargetHome(args.openclawHome, path.join(os.homedir(), ".openclaw", "extensions"))
       const qwenHome = resolveTargetHome(args.qwenHome, path.join(os.homedir(), ".qwen", "extensions"))
 
+      // Parse and validate Pi extensions
+      const validExtensions = ["ui", "subagent", "mcporter", "compat"] as const
+      let piExtensions: typeof validExtensions[number][] = ["compat"]
+      
+      if (args.extensions) {
+        const requested = String(args.extensions).split(",").map(e => e.trim()).filter(Boolean)
+        const invalid = requested.filter(e => !validExtensions.includes(e as any))
+        if (invalid.length > 0) {
+          throw new Error(`Invalid Pi extension(s): ${invalid.join(", ")}. Valid options: ${validExtensions.join(", ")}`)
+        }
+        piExtensions = [...new Set(requested)] as any
+      }
+
       const options = {
         agentMode: (String(args.agentMode) === "primary" ? "primary" : "subagent") as "primary" | "subagent",
         inferTemperature: Boolean(args.inferTemperature),
         permissions: permissions as PermissionMode,
+        extensions: piExtensions,
       }
 
       if (targetName === "all") {
