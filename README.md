@@ -80,6 +80,10 @@ bunx @every-env/compound-plugin install compound-engineering --to droid
 # convert to Pi format
 bunx @every-env/compound-plugin install compound-engineering --to pi
 
+# Pi: install only specific extensions (modular)
+bunx @every-env/compound-plugin install compound-engineering --to pi --extensions ui,mcporter
+bunx @every-env/compound-plugin install compound-engineering --to pi --extensions subagent
+
 # convert to Gemini CLI format
 bunx @every-env/compound-plugin install compound-engineering --to gemini
 
@@ -122,6 +126,29 @@ bunx @every-env/compound-plugin install compound-engineering --to all
 | `qwen` | `~/.qwen/extensions/<plugin>/` | Agents as `.yaml`; env vars with placeholders extracted as settings; colon separator for nested commands |
 
 All provider targets are experimental and may change as the formats evolve.
+
+**Pi Extensions (modular installation)**
+
+Pi supports selective extension installation via the `--extensions` flag:
+
+| Extension | Tools | When to use |
+|-----------|-------|-------------|
+| `compat` (default) | All tools | Backward compatible, batteries-included |
+| `ui` | `ask_user_question` | Interactive prompts only |
+| `subagent` | `subagent` | Agent orchestration (single/parallel/chain) |
+| `mcporter` | `mcporter_list`, `mcporter_call` | MCP server integration only |
+
+Examples:
+```bash
+# Default: install all tools (backward compatible)
+bunx @every-env/compound-plugin install compound-engineering --to pi
+
+# Install only UI and MCPorter tools
+bunx @every-env/compound-plugin install compound-engineering --to pi --extensions ui,mcporter
+
+# Install only subagent orchestration
+bunx @every-env/compound-plugin install compound-engineering --to pi --extensions subagent
+```
 
 </details>
 

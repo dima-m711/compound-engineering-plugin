@@ -7,15 +7,17 @@ import type {
   PiMcporterServer,
 } from "../types/pi"
 import type { ClaudeToOpenCodeOptions } from "./claude-to-opencode"
-import { PI_COMPAT_EXTENSION_SOURCE } from "../templates/pi/compat-extension"
+import { PI_EXTENSION_METADATA, type PiExtensionName } from "../templates/pi/extensions"
 
-export type ClaudeToPiOptions = ClaudeToOpenCodeOptions
+export type ClaudeToPiOptions = ClaudeToOpenCodeOptions & {
+  extensions?: PiExtensionName[]
+}
 
 const PI_DESCRIPTION_MAX_LENGTH = 1024
 
 export function convertClaudeToPi(
   plugin: ClaudePlugin,
-  _options: ClaudeToPiOptions,
+  options: ClaudeToPiOptions,
 ): PiBundle {
   const promptNames = new Set<string>()
   const usedSkillNames = new Set<string>(plugin.skills.map((skill) => normalizeName(skill.name)))
@@ -26,12 +28,18 @@ export function convertClaudeToPi(
 
   const generatedSkills = plugin.agents.map((agent) => convertAgent(agent, usedSkillNames))
 
-  const extensions = [
-    {
-      name: "compound-engineering-compat.ts",
-      content: PI_COMPAT_EXTENSION_SOURCE,
-    },
-  ]
+  // Determine which extensions to include
+  const requestedExtensions = options.extensions ?? ["compat"]
+  const extensions = requestedExtensions.map((extName) => {
+    const meta = PI_EXTENSION_METADATA[extName]
+    if (!meta) {
+      throw new Error(`Unknown Pi extension: ${extName}`)
+    }
+    return {
+      name: meta.filename,
+      content: meta.source,
+    }
+  })
 
   return {
     prompts,

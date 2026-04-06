@@ -104,7 +104,7 @@ export default defineCommand({
       const qwenHome = resolveTargetHome(args.qwenHome, path.join(os.homedir(), ".qwen", "extensions"))
 
       const options = {
-        agentMode: String(args.agentMode) === "primary" ? "primary" : "subagent",
+        agentMode: (String(args.agentMode) === "primary" ? "primary" : "subagent") as "primary" | "subagent",
         inferTemperature: Boolean(args.inferTemperature),
         permissions: permissions as PermissionMode,
       }

@@ -35,8 +35,13 @@ describe("convertClaudeToPi", () => {
     // Pi compatibility extension is included (with subagent + MCPorter tools)
     const compatExtension = bundle.extensions.find((extension) => extension.name === "compound-engineering-compat.ts")
     expect(compatExtension).toBeDefined()
-    expect(compatExtension!.content).toContain('name: "subagent"')
-    expect(compatExtension!.content).toContain('name: "mcporter_call"')
+    // The compat extension imports and re-exports other extensions
+    expect(compatExtension!.content).toContain('import uiExtension')
+    expect(compatExtension!.content).toContain('import subagentExtension')
+    expect(compatExtension!.content).toContain('import mcporterExtension')
+    expect(compatExtension!.content).toContain('uiExtension(pi)')
+    expect(compatExtension!.content).toContain('subagentExtension(pi)')
+    expect(compatExtension!.content).toContain('mcporterExtension(pi)')
 
     // Claude MCP config is translated to MCPorter config
     expect(bundle.mcporterConfig?.mcpServers.context7?.baseUrl).toBe("https://mcp.context7.com/mcp")
@@ -176,5 +181,55 @@ describe("convertClaudeToPi", () => {
     const parsedPrompt = parseFrontmatter(bundle.prompts[0].content)
     expect(parsedPrompt.body).toContain("Pi + MCPorter note")
     expect(parsedPrompt.body).toContain("mcporter_call")
+  })
+
+  test("supports selective extension generation", () => {
+    const plugin: ClaudePlugin = {
+      root: "/tmp/plugin",
+      manifest: { name: "fixture", version: "1.0.0" },
+      agents: [],
+      commands: [
+        {
+          name: "test",
+          description: "Test command",
+          body: "Test body",
+          sourcePath: "/tmp/plugin/commands/test.md",
+        },
+      ],
+      skills: [],
+      hooks: undefined,
+      mcpServers: undefined,
+    }
+
+    // Test: only UI extension
+    const uiOnly = convertClaudeToPi(plugin, {
+      agentMode: "subagent",
+      inferTemperature: false,
+      permissions: "none",
+      extensions: ["ui"],
+    })
+    expect(uiOnly.extensions).toHaveLength(1)
+    expect(uiOnly.extensions[0].name).toBe("compound-engineering-ui.ts")
+    expect(uiOnly.extensions[0].content).toContain('name: "ask_user_question"')
+
+    // Test: UI + MCPorter extensions
+    const uiAndMcporter = convertClaudeToPi(plugin, {
+      agentMode: "subagent",
+      inferTemperature: false,
+      permissions: "none",
+      extensions: ["ui", "mcporter"],
+    })
+    expect(uiAndMcporter.extensions).toHaveLength(2)
+    expect(uiAndMcporter.extensions.map(e => e.name)).toContain("compound-engineering-ui.ts")
+    expect(uiAndMcporter.extensions.map(e => e.name)).toContain("compound-engineering-mcporter.ts")
+
+    // Test: default to compat when no extensions specified
+    const defaultBundle = convertClaudeToPi(plugin, {
+      agentMode: "subagent",
+      inferTemperature: false,
+      permissions: "none",
+    })
+    expect(defaultBundle.extensions).toHaveLength(1)
+    expect(defaultBundle.extensions[0].name).toBe("compound-engineering-compat.ts")
   })
 })
