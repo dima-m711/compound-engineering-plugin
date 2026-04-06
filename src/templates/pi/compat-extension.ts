@@ -1,4 +1,12 @@
-export const PI_COMPAT_EXTENSION_SOURCE = `import fs from "node:fs"
+/**
+ * @deprecated Use PI_EXTENSION_METADATA from ./extensions instead
+ * This file is kept for backward compatibility only
+ */
+
+export { PI_COMPAT_EXTENSION_SOURCE } from "./extensions"
+
+// Legacy full source export (unused, but kept for safety)
+const _LEGACY_SOURCE = `import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
