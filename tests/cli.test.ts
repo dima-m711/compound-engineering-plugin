@@ -215,8 +215,8 @@ describe("CLI", () => {
 
     expect(stdout).toContain("Installed compound-engineering")
     expect(stdout).toContain(codexRoot)
-    expect(await exists(path.join(codexRoot, "prompts", "ce-plan.md"))).toBe(true)
     expect(await exists(path.join(codexRoot, "skills", "ce-plan", "SKILL.md"))).toBe(true)
+    expect(await exists(path.join(codexRoot, "skills", "ce-brainstorm", "SKILL.md"))).toBe(true)
     expect(await exists(path.join(codexRoot, "AGENTS.md"))).toBe(true)
   })
 

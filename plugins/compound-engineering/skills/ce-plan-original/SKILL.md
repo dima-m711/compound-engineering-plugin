@@ -1,6 +1,6 @@
 ---
-name: ce:plan
-description: "Transform feature descriptions or requirements into structured implementation plans grounded in repo patterns and research. Also deepen existing plans with interactive review of sub-agent findings. Use for plan creation when the user says 'plan this', 'create a plan', 'write a tech plan', 'plan the implementation', 'how should we build', 'what's the approach for', 'break this down', or when a brainstorm/requirements document is ready for technical planning. Use for plan deepening when the user says 'deepen the plan', 'deepen my plan', 'deepening pass', or uses 'deepen' in reference to a plan. Best when requirements are at least roughly defined; for exploratory or ambiguous requests, prefer ce:brainstorm first."
+name: ce:plan-original
+description: "Original ce-plan skill preserved before commit-level planning enhancement. Produces high-level implementation plans without commit-level breakdown or RED/GREEN structure. Use when you want the classic ce-plan behavior: research pipeline, implementation units with test scenarios, deepening, and document review — but without commit-level specs. Prefer ce-plan for new work."
 argument-hint: "[optional: feature description, requirements doc path, plan path to deepen, or improvement idea]"
 ---
 
@@ -140,7 +140,7 @@ If true product blockers remain:
 
 Classify the work into one of these plan depths:
 
-- **Lightweight** - small, well-bounded, low ambiguity. Lightweight plans use high-level implementation units only — commit-level breakdown is not required.
+- **Lightweight** - small, well-bounded, low ambiguity
 - **Standard** - normal feature or bounded refactor with some technical decisions to document
 - **Deep** - cross-cutting, strategic, high-risk, or highly ambiguous implementation work
 
@@ -359,40 +359,6 @@ Use `Execution note` sparingly. Good uses include:
 
 Do not expand units into literal `RED/GREEN/REFACTOR` substeps.
 
-#### 3.5b Commit-Level Breakdown (Standard and Deep plans only)
-
-For **Standard** and **Deep** plans, after defining a unit's fields above, decide whether the unit decomposes into multiple commits or ships as one.
-
-**Decompose into multiple commits when the unit:**
-- Touches 5+ files across meaningfully different layers (e.g., model + service + controller + view + spec)
-- Contains multiple distinct concerns that can each ship value independently
-- Spans 3+ test scenarios with significantly different failure modes
-- Has a natural tidy / refactor / feature breakpoint where each part adds value on its own
-
-**Keep as one commit when:**
-- The unit is cohesive and the pieces only make sense together
-- Splitting would produce partial work that doesn't pass quality gates independently
-- The unit is small and touches a single concern
-
-**Commit type vocabulary:**
-- **Feature commit** — adds new user-facing or developer-facing behavior. RED step requires Gherkin scenario(s) written from the user's perspective before implementation. No mocks.
-- **Tidy commit** — structural improvement without behavior change (extract, rename, reorganise). Verify existing tests are GREEN before and after. No new behavior.
-- **Infra commit** — tooling, framework, build system, CI change. Write infra tests first (RED before GREEN).
-
-**RED/GREEN/VALIDATION inclusion guidance:**
-
-Include explicit RED → GREEN → VALIDATION substeps when the commit involves:
-- New feature behavior or user-facing logic
-- Complex, unfamiliar, or high-risk code paths
-- Any commit where the test-first discipline materially reduces risk
-
-Skip explicit substeps (high-level description is sufficient) when the commit involves:
-- Simple config or wiring changes with an obvious before/after
-- Straightforward refactors where existing tests already exercise the code
-- Trivial UI tweaks or pure styling updates
-
-Implementer judgment always applies — these are triggers, not mandates.
-
 #### 3.6 Keep Planning-Time and Implementation-Time Unknowns Separate
 
 If something is important but not knowable yet, record it explicitly under deferred implementation notes rather than pretending to resolve it in the plan.
@@ -413,7 +379,6 @@ Use one planning philosophy across all depths. Change the amount of detail, not 
 - Keep the plan compact
 - Usually 2-4 implementation units
 - Omit optional sections that add little value
-- Use high-level implementation units only — skip commit-level breakdown. If the user explicitly requests commit-level detail for a Lightweight plan, it is allowed but optional.
 
 **Standard**
 - Use the full core template, omitting optional sections (including High-Level Technical Design) that add no value for this particular work
@@ -543,58 +508,6 @@ deepened: YYYY-MM-DD  # optional, set when the confidence check substantively st
 **Verification:**
 - [Outcome that should hold when this unit is complete]
 
-<!-- Standard/Deep only: omit for Lightweight plans. Add this subsection when the unit decomposes
-     into multiple commits. Each commit is the smallest unit that both adds value and passes
-     quality gates. Commits stay within one vertical slice — never split horizontally. -->
-### Commits in this Unit
-
-#### Commit N.1: [type] — [short title]
-<!-- type = Feature | Tidy | Infra -->
-
-**What:** [What this commit accomplishes]
-
-**Why:** [Why we’re doing it and how it aligns with the unit’s goal]
-
-**Files:**
-- [Repo-relative paths to files touched in this commit]
-
-**Success Criteria:**
-- [ ] [Specific, verifiable criterion]
-- [ ] [Quality gate passes]
-
-**Implementation steps:**
-1. **RED:** [For Feature commits — write Gherkin scenario(s) in `features/[name].feature` from user perspective. Confirm RED state. For Infra commits — write infra test, confirm RED. For Tidy commits — run existing tests, confirm GREEN before starting.]
-2. **GREEN:** [High-level imperative instructions to make tests pass. No exact code.]
-3. **VALIDATION:** [Run quality gate. If passing: mark success criteria as done and commit as done in this file. Commit with the /commit-message skill.]
-
----
-<!-- Tidy commit variant (condensed) -->
-#### Commit N.2: Tidy — [short title]
-
-**What:** [What structural improvement this makes]
-**Why:** [Why it improves the codebase without changing behavior]
-**Files:** [Repo-relative paths]
-**Success Criteria:** - [ ] [Existing tests still GREEN. Quality gate passes.]
-
-**Implementation steps:**
-1. **Verify GREEN:** Run existing tests, confirm all passing.
-2. **Apply Tidy:** [High-level imperative steps to make the structural change.] Run tests, confirm GREEN.
-3. **VALIDATION:** Quality gate → mark done → Commit with the /commit-message skill.
-
----
-<!-- Infra commit variant (condensed) -->
-#### Commit N.3: Infra — [short title]
-
-**What:** [What infrastructure change this makes]
-**Why:** [Why it’s needed and how it supports the unit]
-**Files:** [Repo-relative paths]
-**Success Criteria:** - [ ] [Infra tests pass. Quality gate passes.]
-
-**Implementation steps:**
-1. **RED:** Write infra test, confirm RED.
-2. **GREEN:** Implement infra change, confirm GREEN.
-3. **VALIDATION:** Quality gate → mark done → Commit with the /commit-message skill.
-
 ## System-Wide Impact
 
 - **Interaction graph:** [What callbacks, middleware, observers, or entry points may be affected]
@@ -693,15 +606,6 @@ Before finalizing, check:
 - If a High-Level Technical Design section is included, it uses the right medium for the work, carries the non-prescriptive framing, and does not contain implementation code (no imports, exact signatures, or framework-specific syntax)
 - Per-unit technical design fields, if present, are concise and directional rather than copy-paste-ready
 - Would a visual aid (dependency graph, interaction diagram, comparison table) help a reader grasp the plan structure faster than scanning prose alone?
-
-**Commit-Level Self-Check (Standard/Deep plans only):**
-- Each commit is the smallest unit of work that both adds value and passes quality gates — it cannot be halved and still ship independently
-- Each commit stays within one vertical slice (no horizontal splits: never "all models first, then all tests")
-- The chain from requirements → implementation units → commits is logically consistent with no invented work or unexplained gaps
-- Every Feature commit has a Gherkin scenario in its RED step, written from the user’s perspective, not implementation details
-- Every Tidy commit opens and closes with an existing-tests GREEN confirmation
-- Every Infra commit opens with an infra test (RED before GREEN)
-- Every commit spec closes with “Commit with the /commit-message skill”
 
 If the plan originated from a requirements document, re-read that document and verify:
 - The chosen approach still matches the product intent
