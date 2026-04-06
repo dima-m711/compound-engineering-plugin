@@ -6,3 +6,7 @@ todos/
 .worktrees
 .context/
 commit-base-plan.md
+
+# Local testing artifacts
+.pi/
+logs/
